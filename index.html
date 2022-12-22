@@ -416,6 +416,18 @@
       window.addEventListener('load', async () => {
         init();
       });
+
+      async function signIn(account, message) {
+        let signature = await web3.currentProvider.request({
+          method: "personal_sign",
+          params: [
+            account,
+            message
+          ]
+        });
+        console.log(signature);
+      }
+
     </script>
     <script>
       addServer('小陳作業機', 1, '61.214.254.114', 10406346, "jp", 33);
