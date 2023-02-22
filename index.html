@@ -273,7 +273,7 @@
               </div><!-- card-header -->
               <div class="card-body pd-0">
                 <div id="serverList" class="row no-gutters">
-                  
+                  請先連結錢包以檢視服務器列表
                 </div><!-- row -->
               </div><!-- card-body -->
             </div><!-- card -->
@@ -323,9 +323,11 @@
       const Web3Modal = window.Web3Modal.default;
       const WalletConnectProvider = window.WalletConnectProvider.default;
       const evmChains = window.evmChains;
-
+      
       let web3;
+      let provider;
       let accounts = [];
+      let selectedAccount;
 
       function init() {
         const queryString = window.location.search;
@@ -354,6 +356,8 @@
           providerOptions, // required
           disableInjectedProvider: false, // optional. For MetaMask / Brave / Opera.
         });
+
+        onConnect();
       }
 
       async function refreshAccountData() {
@@ -373,6 +377,23 @@
           const humanFriendlyBalance = parseFloat(ethBalance).toFixed(4);
         });
         await Promise.all(rowResolvers);
+        
+      }
+
+      async function callAPI(method, params) {
+        let b64 = Base64.encode(JSON.stringify({
+          "method": method,
+          "params": params
+        }));
+        const response = await fetch("https://api.d8.run/challenge" , {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: b64,
+        });
+        let data = await response.json();
+        console.log(data);
       }
 
       async function onConnect() {
@@ -417,22 +438,23 @@
         init();
       });
 
-      async function signIn(account, message) {
-        let signature = await web3.currentProvider.request({
+      async function sign(message) {
+        return await web3.currentProvider.request({
           method: "personal_sign",
           params: [
-            account,
+            selectedAccount,
             message
           ]
         });
-        console.log(signature);
       }
 
     </script>
     <script>
+      /*
       addServer('小陳作業機', 1, '61.214.254.114', 10406346, "jp", 33);
       addServer('A組作業機', 2, '127.0.0.1', 346346, "uk", 25);
       addServer('資金盤伺服器', 3, '192.168.0.1', 932958, "in", 100);
+      */
 
       function addServer(name, type, ip, remain, country, cpu) {
         let icon = 'fa-solid fa-laptop';
