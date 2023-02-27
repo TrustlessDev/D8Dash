@@ -397,6 +397,7 @@
         
         let servers = await d8("list");
         if(servers) {
+          $("#serverList").html("");
           for(i=0;i<servers.length;i++) {
             let server = servers[i];
             addServer(server.label, 1, server.ipv4[0], server.specs.disk, server.region, server.specs.vcpus);
