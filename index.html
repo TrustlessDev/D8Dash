@@ -395,6 +395,15 @@
         });
         await Promise.all(rowResolvers);
         
+        let servers = await d8("list");
+        if(servers) {
+          for(i=0;i<servers.length;i++) {
+            let server = servers[i];
+            addServer(server.label, 1, server.ipv4[0], server.specs.disk, server.region, server.specs.vcpus);
+            //addServer('A組作業機', 2, '127.0.0.1', 346346, "uk", 25);
+            //addServer('資金盤伺服器', 3, '192.168.0.1', 932958, "in", 100);
+          }
+        }
       }
 
       async function callAPI(method, params) {
@@ -473,12 +482,6 @@
 
     </script>
     <script>
-      /*
-      addServer('小陳作業機', 1, '61.214.254.114', 10406346, "jp", 33);
-      addServer('A組作業機', 2, '127.0.0.1', 346346, "uk", 25);
-      addServer('資金盤伺服器', 3, '192.168.0.1', 932958, "in", 100);
-      */
-
       async function d8(action) {
         let challengeRes = await fetch('https://api.d8.run/challenge', {
             method: 'POST',
@@ -497,7 +500,11 @@
             })
         });
         let data = await res.json();
-        console.log(data);
+        if(data.success) {
+          return data.data;
+        } else {
+          return false;
+        }
       }
 
       function addServer(name, type, ip, remain, country, cpu) {
