@@ -211,7 +211,7 @@
         </div><!-- dropdown -->
         <div class="dropdown dropdown-profile">
           <a href="" class="dropdown-link" data-toggle="dropdown" data-display="static">
-            <div class="avatar avatar-sm"><img src="/assets/img/wallet-connect.png" class="rounded-circle" alt=""></div>
+            <div id="icoX" class="avatar avatar-sm"><img src="/assets/img/wallet-connect.png" class="rounded-circle" alt=""></div>
           </a><!-- dropdown-link -->
           <div class="dropdown-menu dropdown-menu-right tx-13">
             <div class="avatar avatar-lg mg-b-15"><img src="/assets/img/wallet-connect.png" class="rounded-circle" alt=""></div>
@@ -257,7 +257,7 @@
             <nav aria-label="breadcrumb">
               <ol class="breadcrumb breadcrumb-style1 mg-b-10">
                 <li class="breadcrumb-item"><a href="#">主控台</a></li>
-                <li class="breadcrumb-item" aria-current="page">匿蹤服務器列表</li>
+                <li class="breadcrumb-item" aria-current="page"><a href="/">匿蹤服務器列表</a></li>
                 <li id="serverName" class="breadcrumb-item" aria-current="page">###</li>
                 <li class="breadcrumb-item active" aria-current="page">服務器狀態</li>
               </ol>
@@ -265,8 +265,8 @@
             <h4 class="mg-b-0 tx-spacing--1">歡迎使用 D8 匿蹤服務器</h4>
           </div>
           <div class="d-none d-md-block">
-            <button class="btn btn-sm pd-x-15 btn-white btn-uppercase"><i data-feather="refresh-cw" class="wd-10 mg-r-5"></i> 重新啟動</button>
-            <button class="btn btn-sm pd-x-15 btn-white btn-uppercase mg-l-5"><i data-feather="power" class="wd-10 mg-r-5"></i> 關機</button>
+            <button class="btn btn-sm pd-x-15 btn-white btn-uppercase" onclick="reboot()"><i data-feather="refresh-cw" class="wd-10 mg-r-5"></i> 重新啟動</button>
+            <button id="onoff" class="btn btn-sm pd-x-15 btn-white btn-uppercase mg-l-5" onclick="shutDown()"><i data-feather="power" class="wd-10 mg-r-5"></i><d8 id="onoffLabel">關機</d8></button>
             <button class="btn btn-sm pd-x-15 btn-danger btn-uppercase mg-l-5"><i data-feather="trash-2" class="wd-10 mg-r-5"></i> 一鍵刪除</button>
           </div>
         </div>
@@ -276,8 +276,7 @@
             <div class="card card-body">
               <h6 class="tx-uppercase tx-11 tx-spacing-1 tx-color-02 tx-semibold mg-b-8">伺服器狀態</h6>
               <div class="d-flex d-lg-block d-xl-flex align-items-end">
-                <h3 class="tx-normal tx-danger mg-b-0 mg-r-5 lh-1">關機</h3>
-                <p class="tx-11 tx-color-03 mg-b-0"><span class="tx-medium tx-success">1.2% <i class="icon ion-md-arrow-up"></i></span> than last week</p>
+                <h3 class="tx-normal tx-danger mg-b-0 mg-r-5 lh-1" id="status">未知</h3>
               </div>
             </div>
           </div><!-- col -->
@@ -285,8 +284,7 @@
             <div class="card card-body">
               <h6 class="tx-uppercase tx-11 tx-spacing-1 tx-color-02 tx-semibold mg-b-8">CPU</h6>
               <div class="d-flex d-lg-block d-xl-flex align-items-end">
-                <h3 class="tx-normal tx-rubik mg-b-0 mg-r-5 lh-1">0%</h3>
-                <p class="tx-11 tx-color-03 mg-b-0"><span class="tx-medium tx-danger">0.7% <i class="icon ion-md-arrow-down"></i></span> than last week</p>
+                <h3 id="cpuStats" class="tx-normal tx-rubik mg-b-0 mg-r-5 lh-1">0%</h3>
               </div>
             </div>
           </div><!-- col -->
@@ -294,8 +292,7 @@
             <div class="card card-body">
               <h6 class="tx-uppercase tx-11 tx-spacing-1 tx-color-02 tx-semibold mg-b-8">硬碟 I/O</h6>
               <div class="d-flex d-lg-block d-xl-flex align-items-end">
-                <h3 class="tx-normal tx-rubik mg-b-0 mg-r-5 lh-1">$306.20</h3>
-                <p class="tx-11 tx-color-03 mg-b-0"><span class="tx-medium tx-danger">0.3% <i class="icon ion-md-arrow-down"></i></span> than last week</p>
+                <h3 id="ioStats" class="tx-normal tx-rubik mg-b-0 mg-r-5 lh-1">0%</h3>
               </div>
             </div>
           </div><!-- col -->
@@ -303,8 +300,8 @@
             <div class="card card-body">
               <h6 class="tx-uppercase tx-11 tx-spacing-1 tx-color-02 tx-semibold mg-b-8">網路 - IPv4</h6>
               <div class="d-flex d-lg-block d-xl-flex align-items-end">
-                <h3 class="tx-normal tx-rubik mg-b-0 mg-r-5 lh-1">1,650</h3>
-                <p class="tx-11 tx-color-03 mg-b-0"><span class="tx-medium tx-success">2.1% <i class="icon ion-md-arrow-up"></i></span> than last week</p>
+                <h3 id="v4Stats" class="tx-normal tx-rubik mg-b-0 mg-r-5 lh-1"><i class="icon ion-md-arrow-down"></i><d8 id="v4In">0</d8> <i class="icon ion-md-arrow-up"></i><d8 id="v4Out">0</d8></h3>
+                <p class="tx-11 tx-color-03 mg-b-0">/ Kbs</p>
               </div>
             </div>
           </div><!-- col -->
@@ -762,6 +759,7 @@
     <!-- append theme customizer -->
     <script src="lib/js-cookie/js.cookie.js"></script>
     <script src="assets/js/dashforge.settings.js"></script>
+    <script src="assets/js/iconx.js"></script>
 
     <!-- append Web3 -->
     <script type="text/javascript" src="assets/js/web3.min.js"></script>
@@ -773,19 +771,10 @@
       const Web3Modal = window.Web3Modal.default;
       const WalletConnectProvider = window.WalletConnectProvider.default;
       const evmChains = window.evmChains;
+      let instanceId = 0;
 
-      function init() {
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        const serverName = Base64.decode(decodeURI(urlParams.get('serverName')));
-
-        $("#serverName").text(serverName);
-        console.log("Initializing example");
-        console.log("WalletConnectProvider is", WalletConnectProvider);
-        console.log("window.web3 is", window.web3, "window.ethereum is", window.ethereum);
-
+      async function init() {
         if(location.protocol !== 'https:') {
-          
           document.querySelector("#connectBtn").setAttribute("disabled", "disabled")
           return;
         }
@@ -805,7 +794,133 @@
           disableInjectedProvider: false, // optional. For MetaMask / Brave / Opera.
         });
 
-        console.log("Web3Modal instance is", web3Modal);
+        onConnect();
+      }
+
+      async function shutDown() {
+        await d8("shutdown", instanceId);
+      }
+
+      async function boot() {
+        await d8("boot", instanceId);
+      }
+
+      async function reboot() {
+        await d8("reboot", instanceId);
+      }
+
+      let updateTimer = 0;
+
+      async function retriveServer() {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const id = urlParams.get('id');
+        instanceId = id;
+        if(id) {
+          let server = await d8("instance", id);
+          $("#serverName").text(server.label);
+          let status = server.status;
+          let statusText = "未知";
+          let statusColor = "tx-danger";
+          if(status == "running") {
+            statusText = "運行中";
+            statusColor = "tx-success";
+          } else if(status == "offline") {
+            statusText = "關機";
+            statusColor = "tx-danger";
+          } else if(status == "booting") {
+            statusText = "啟動中";
+            statusColor = "tx-warning";
+          } else if(status == "rebooting") {
+            statusText = "重新啟動中";
+            statusColor = "tx-warning";
+          } else if(status == "shutting_down") {
+            statusText = "關機中";
+            statusColor = "tx-warning";
+          } else if(status == "deleting") {
+            statusText = "刪除中";
+            statusColor = "tx-warning";
+          } else if(status == "migrating") {
+            statusText = "合併中";
+            statusColor = "tx-warning";
+          } else if(status == "rebuilding") {
+            statusText = "重建中";
+            statusColor = "tx-warning";
+          } else if(status == "cloning") {
+            statusText = "複製中";
+            statusColor = "tx-warning";
+          } else if(status == "restoring") {
+            statusText = "還原中";
+            statusColor = "tx-warning";
+          } else if(status == "stopped") {
+            statusText = "已停止";
+            statusColor = "tx-danger";
+          }
+          if(statusText == "關機") {
+            $("#onoff").attr("onclick", "boot()");
+            $("#onoffLabel").text("開機");
+          } else {
+            $("#onoff").attr("onclick", "shutDown()");
+            $("#onoffLabel").text("關機");
+          }
+          $("#status").removeClass("tx-danger");
+          $("#status").removeClass("tx-success");
+          $("#status").removeClass("tx-warning");
+          $("#status").addClass(statusColor);
+          $("#status").text(statusText);
+          if(updateTimer == 0) {
+            updateTimer = setInterval(function() {
+              retriveServer();
+            }, 5000);
+          }
+          let stats = (await d8("stats", id));
+          console.log(stats);
+          let cpu = stats.cpu[stats.cpu.length-1][1];
+          let io = stats.io.io[stats.io.io.length-1][1];
+          let v4in = stats.netv4.in[stats.netv4.in.length-1][1];
+          v4in = (v4in/1000).toFixed(2);
+          let v4out = stats.netv4.out[stats.netv4.out.length-1][1];
+          v4out = (v4out/1000).toFixed(2);
+          $("#cpuStats").text(cpu + "%");
+          $("#ioStats").text(io + "%");
+          $("#v4In").text(v4in);
+          $("#v4Out").text(v4out);
+        } else {
+          $("#serverName").text("null");
+        }
+      }
+
+      async function d8(action, id) {
+        let challengeRes = await fetch('https://api.d8.run/challenge', {
+            method: 'POST',
+            body: JSON.stringify({
+                address: selectedAccount,
+                action: action,
+                id: id
+            })
+        });
+        let raw = await challengeRes.json();
+        if(raw.verfied) {
+          return raw.data;
+        } else {
+          clearInterval(updateTimer);
+          updateTimer = 0;
+        }
+        let challenge = raw.challenge;
+        let signature = await sign(challenge);
+        let res = await fetch('https://api.d8.run/verify', {
+            method: 'POST',
+            body: JSON.stringify({
+                challenge: challenge,
+                signature: signature
+            })
+        });
+        let data = await res.json();
+        if(data.success) {
+          return data.data;
+        } else {
+          return false;
+        }
       }
 
       async function refreshAccountData() {
@@ -813,40 +928,34 @@
       }
 
       async function fetchAccountData() {
-        const web3 = new Web3(provider);
-        console.log("Web3 instance is", web3);
+        web3 = new Web3(provider);
         const chainId = await web3.eth.getChainId();
         const chainData = evmChains.getChain(chainId);
-        //document.querySelector("#network-name").textContent = chainData.name;
-        const accounts = await web3.eth.getAccounts();
-        console.log("Got accounts", accounts);
+        accounts = await web3.eth.getAccounts();
         selectedAccount = accounts[0];
-        //document.querySelector("#selected-account").textContent = selectedAccount;
-        //const template = document.querySelector("#template-balance");
-        //const accountContainer = document.querySelector("#accounts");
-        //accountContainer.innerHTML = '';
+
+        $("#icoX").html("");
+        icoX(selectedAccount, 'icoX');
 
         const rowResolvers = accounts.map(async (address) => {
           const balance = await web3.eth.getBalance(address);
           const ethBalance = web3.utils.fromWei(balance, "ether");
           const humanFriendlyBalance = parseFloat(ethBalance).toFixed(4);
-          //const clone = template.content.cloneNode(true);
-          //clone.querySelector(".address").textContent = address;
-          //clone.querySelector(".balance").textContent = humanFriendlyBalance;
-          //accountContainer.appendChild(clone);
         });
         await Promise.all(rowResolvers);
-        //document.querySelector("#prepare").style.display = "none";
-        //document.querySelector("#connected").style.display = "block";
+        await retriveServer();
       }
 
       async function onConnect() {
-        console.log("Opening a dialog", web3Modal);
-        try {
-          provider = await web3Modal.connect();
-        } catch(e) {
-          console.log("Could not get a wallet connection", e);
+        if($("#connectBtn").text() == "斷開連線") {
+          onDisconnect();
           return;
+        } else {
+          try {
+            provider = await web3Modal.connect();
+          } catch(e) {
+            return;
+          }
         }
 
         $("#connectBtn").text("斷開連線");
@@ -868,22 +977,32 @@
         await refreshAccountData();
       }
 
-
       async function onDisconnect() {
-        if(provider.close) {
-          await provider.close();
+        if(provider.disconnect) {
+          await provider.disconnect();
           await web3Modal.clearCachedProvider();
           provider = null;
         }
         selectedAccount = null;
         $("#connectBtn").text("連線錢包");
         $("#icon-connect-btn").attr("data-feather", "link-2");
+        $("#icoX").html("<img src=\"/assets/img/wallet-connect.png\" class=\"rounded-circle\" alt=\"\">");
         feather.replace();
       }
 
       window.addEventListener('load', async () => {
         init();
       });
+
+      async function sign(message) {
+        return await web3.currentProvider.request({
+          method: "personal_sign",
+          params: [
+            selectedAccount,
+            message
+          ]
+        });
+      }
     </script>
   </body>
 </html>

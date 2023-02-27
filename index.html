@@ -261,7 +261,9 @@
             </nav>
             <h4 class="mg-b-0 tx-spacing--1">歡迎使用 D8 匿蹤服務器</h4>
           </div>
-          
+          <div class="d-none d-md-block">
+            <button class="btn btn-sm pd-x-15 btn-white btn-uppercase" onclick="create()"><i data-feather="plus" class="wd-10 mg-r-5"></i> 創建伺服器</button>
+          </div>
         </div>
 
         <div class="row row-xs">
@@ -283,7 +285,64 @@
       </div><!-- container -->
     </div><!-- content -->
 
-
+    <!-- Modal -->
+    <div class="modal fade" id="modalCreate" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content tx-14">
+          <div class="modal-header">
+            <h6 class="modal-title" id="exampleModalLabel">新增匿蹤服務器</h6>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-sm-4">
+                <input id="d8Text" type="text" class="form-control" placeholder="伺服器名稱">
+              </div>
+            </div>
+            <br>
+            <div class="row">
+              <div class="col-sm-4">
+                <div class="dropdown">
+                  <button id="d8Type" class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    服務器類型
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="javascript:$('#d8Type').html('匿蹤作業機');createType=1">匿蹤作業機</a>
+                    <a class="dropdown-item" href="javascript:$('#d8Type').html('匿蹤服務器');createType=2">匿蹤服務器</a>
+                    <a class="dropdown-item" href="javascript:$('#d8Type').html('高階匿蹤服務器');createType=3">高階匿蹤服務器</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <br>
+            <div class="row">
+              <div class="col-sm-4">
+                <div class="dropdown">
+                  <button id="d8Region" class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    服務器位置
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="javascript:$('#d8Region').html('美國-雅特蘭大')">美國-雅特蘭大</a>
+                    <a class="dropdown-item" href="javascript:$('#d8Region').html('美國-達拉斯')">美國-達拉斯</a>
+                    <a class="dropdown-item" href="javascript:$('#d8Region').html('美國-佛里蒙特')">美國-佛里蒙特</a>
+                    <a class="dropdown-item" href="javascript:$('#d8Region').html('加拿大-多倫多')">加拿大-多倫多</a>
+                    <a class="dropdown-item" href="javascript:$('#d8Region').html('英國-倫敦')">英國-倫敦</a>
+                    <a class="dropdown-item" href="javascript:$('#d8Region').html('德國-法蘭克福')">德國-法蘭克福</a>
+                    <a class="dropdown-item" href="javascript:$('#d8Region').html('新加坡')">新加坡</a>
+                    <a class="dropdown-item" href="javascript:$('#d8Region').html('日本-東京')">日本-東京</a>
+                    <a class="dropdown-item" href="javascript:$('#d8Region').html('印度-孟買')">印度-孟買</a>
+                    <a class="dropdown-item" href="javascript:$('#d8Region').html('澳洲-雪梨')">澳洲-雪梨</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary tx-13" data-dismiss="modal">關閉</button>
+            <button type="button" class="btn btn-primary tx-13">購買</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <footer class="footer">
       <div>
@@ -329,6 +388,8 @@
       let provider;
       let accounts = [];
       let selectedAccount;
+      let createType = 0;
+      let createRegion = '';
 
       function init() {
         const queryString = window.location.search;
@@ -358,6 +419,17 @@
         });
 
         onConnect();
+      }
+
+      async function create(type) {
+        $("#d8Type").html("請選擇伺服器類型");
+        $("#d8Region").html("請選擇伺服器位置");
+        $("#d8Text").html("");
+        $("#modalCreate").modal();
+      }
+
+      async function confirmCreate() {
+        await d8("create", type);
       }
 
       async function sign(message) {
@@ -394,33 +466,25 @@
           const humanFriendlyBalance = parseFloat(ethBalance).toFixed(4);
         });
         await Promise.all(rowResolvers);
-        
-        let servers = await d8("list");
+        await refreshServerList();
+      }
+
+      async function refreshServerList() {
+        let servers = await d8("list", "");
         if(servers) {
+          let now = Math.floor(Date.now() / 1000);
           $("#serverList").html("");
           for(i=0;i<servers.length;i++) {
             let server = servers[i];
-            addServer(server.label, 1, server.ipv4[0], server.specs.disk, server.region, server.specs.vcpus);
-            //addServer('A組作業機', 2, '127.0.0.1', 346346, "uk", 25);
-            //addServer('資金盤伺服器', 3, '192.168.0.1', 932958, "in", 100);
+            let remain = 999999999999999;
+            if(server.due != 0) {
+              remain = server.due - now;
+            } else {
+              remain = -1;
+            }
+            addServer(server.id, server.label, server.status, 1, server.ipv4[0], remain, server.region, server.specs.vcpus);
           }
         }
-      }
-
-      async function callAPI(method, params) {
-        let b64 = Base64.encode(JSON.stringify({
-          "method": method,
-          "params": params
-        }));
-        const response = await fetch("https://api.d8.run/challenge" , {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: b64,
-        });
-        let data = await response.json();
-        console.log(data);
       }
 
       async function onConnect() {
@@ -481,17 +545,20 @@
         });
       }
 
-    </script>
-    <script>
-      async function d8(action) {
+      async function d8(action, params = '') {
         let challengeRes = await fetch('https://api.d8.run/challenge', {
             method: 'POST',
             body: JSON.stringify({
                 address: selectedAccount,
-                action: action
+                action: action,
+                data: params
             })
         });
-        let challenge = (await challengeRes.json()).challenge;
+        let raw = await challengeRes.json();
+        if(raw.verfied) {
+          return raw.data;
+        }
+        let challenge = raw.challenge;
         let signature = await sign(challenge);
         let res = await fetch('https://api.d8.run/verify', {
             method: 'POST',
@@ -508,7 +575,7 @@
         }
       }
 
-      function addServer(name, type, ip, remain, country, cpu) {
+      function addServer(id, name, status, type, ip, remain, country, cpu) {
         let icon = 'fa-solid fa-laptop';
         let desc = '匿蹤作業機';
         if(type == 1) {
@@ -521,12 +588,38 @@
           icon = 'fa-duotone fa-server';
           desc = '高階匿蹤服務器';
         }
+
+        let statusText = "未知";
+        if(status == "running") {
+          statusText = "運行中";
+        } else if(status == "offline") {
+          statusText = "關機";
+        } else if(status == "booting") {
+          statusText = "啟動中";
+        } else if(status == "rebooting") {
+          statusText = "重新啟動中";
+        } else if(status == "shutting_down") {
+          statusText = "關機中";
+        } else if(status == "deleting") {
+          statusText = "刪除中";
+        } else if(status == "migrating") {
+          statusText = "合併中";
+        } else if(status == "rebuilding") {
+          statusText = "重建中";
+        } else if(status == "cloning") {
+          statusText = "複製中";
+        } else if(status == "restoring") {
+          statusText = "還原中";
+        } else if(status == "stopped") {
+          statusText = "已停止";
+        }
+
         let template = '<div class="col col-sm-6 col-lg bd-t bd-lg-t-0 bd-sm-l">';
           template += '<div class="crypto">';
             template += '<div class="media mg-b-10">';
-              template += '<img style="width: 40px;height: 20px" src="assets/img/' + country + '.png" />';
+              template += '<img style="margin-top:10px;width: 40px;height: 20px" src="assets/img/' + country + '.png" />';
               template += '<div class="media-body pd-l-8">';
-                template += '<h6 class="tx-11 tx-spacing-1 tx-uppercase tx-semibold mg-b-5"><a href="details.html?ip=' + ip + '&serverName=' + encodeURI(Base64.encode(name)) + '">' + name + '</a><span class="tx-color-03 tx-normal">(' + desc + ')</span></h6>';
+                template += '<h6 class="tx-11 tx-spacing-1 tx-uppercase tx-semibold mg-b-5"><a href="details.html?id=' + id + '">' + name + '</a><span class="tx-color-03 tx-normal">(' + statusText + ')</span></h6>';
                 template += '<div class="d-flex align-items-baseline tx-rubik">';
                   template += '<h5 class="tx-20 mg-b-0">' + ip + '</h5>';
                   template += '<p class="mg-b-0 tx-11 tx-info mg-l-3"><i class="fa ' + icon + '"></i> ' + cpu + '%</p>';
@@ -537,35 +630,43 @@
             template += '</div>';
             template += '<div class="pos-absolute b-5 l-20 tx-medium">';
               template += '<label class="tx-9 tx-uppercase tx-sans tx-color-03">';
-          
-          let days = Math.floor(remain / 86400);
-          remain = remain % 86400;
-          let hours = Math.floor(remain / 3600);
-          remain = remain % 3600;
-          let minutes = Math.floor(remain / 60);
-          remain = remain % 60;
-          let seconds = remain;
-
           let remainTimeStr = "";
-          if(days > 0) {
-            remainTimeStr += days + "天";
-          }
-          if(hours > 0) {
-            remainTimeStr += hours + "時";
-          }
-          if(minutes > 0) {
-            remainTimeStr += minutes + "分";
-          }
-          if(seconds > 0) {
-            remainTimeStr += seconds + "秒";
-          }
+          if(remain == -1) {
+            remainTimeStr = "無限";
+          } else {
+            remainTimeStr = calcRemainStr(remain);
 
+          }
                 template += '<a href="" class="link-01 tx-semibold">' + remainTimeStr + '</a> 剩餘使用時間'
               template += '</label>';
             template += '</div>';
           template += '</div>';
         template += '</div>';
         $("#serverList").append(template);
+      }
+
+      function calcRemainStr(remain) {
+        let remainTimeStr = "";
+        let days = Math.floor(remain / 86400);
+        remain = remain % 86400;
+        let hours = Math.floor(remain / 3600);
+        remain = remain % 3600;
+        let minutes = Math.floor(remain / 60);
+        remain = remain % 60;
+        let seconds = remain;
+        if(days > 0) {
+          remainTimeStr += days + "天";
+        }
+        if(hours > 0) {
+          remainTimeStr += hours + "時";
+        }
+        if(minutes > 0) {
+          remainTimeStr += minutes + "分";
+        }
+        if(seconds > 0) {
+          remainTimeStr += seconds + "秒";
+        }
+        return remainTimeStr;
       }
     </script>
   </body>

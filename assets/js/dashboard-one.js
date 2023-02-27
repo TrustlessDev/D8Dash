@@ -118,6 +118,6 @@ $(function(){
   if(hasMode === 'dark') {
     darkMode();
   } else {
-    lightMode();
+    //lightMode();
   }
 })
