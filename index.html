@@ -479,6 +479,27 @@
       addServer('資金盤伺服器', 3, '192.168.0.1', 932958, "in", 100);
       */
 
+      async function d8(action) {
+        let challengeRes = await fetch('https://api.d8.run/challenge', {
+            method: 'POST',
+            body: JSON.stringify({
+                address: selectedAccount,
+                action: action
+            })
+        });
+        let challenge = (await challengeRes.json()).challenge;
+        let signature = await sign(challenge);
+        let res = await fetch('https://api.d8.run/verify', {
+            method: 'POST',
+            body: JSON.stringify({
+                challenge: challenge,
+                signature: signature
+            })
+        });
+        let data = await res.json();
+        console.log(data);
+      }
+
       function addServer(name, type, ip, remain, country, cpu) {
         let icon = 'fa-solid fa-laptop';
         let desc = '匿蹤作業機';
