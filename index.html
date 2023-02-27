@@ -274,7 +274,6 @@
               <div class="card-body pd-0">
                 <div id="serverList" class="row no-gutters">
                   請先連結錢包以檢視服務器列表
-                  <script>icoX('Han Solo');</script>
                 </div><!-- row -->
               </div><!-- card-body -->
             </div><!-- card -->
@@ -339,7 +338,6 @@
         $("#serverName").text(serverName);
 
         if(location.protocol !== 'https:') {
-          
           document.querySelector("#connectBtn").setAttribute("disabled", "disabled")
           return;
         }
@@ -362,6 +360,20 @@
         onConnect();
       }
 
+      async function sign(message) {
+        try {
+          await provider.request({
+            method: "personal_sign",
+            params: [
+              accounts[0],
+              message
+            ]
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
       async function refreshAccountData() {
         await fetchAccountData(provider);
       }
@@ -372,6 +384,9 @@
         const chainData = evmChains.getChain(chainId);
         accounts = await web3.eth.getAccounts();
         selectedAccount = accounts[0];
+
+        $("#icoX").html("");
+        icoX(selectedAccount, 'icoX');
 
         const rowResolvers = accounts.map(async (address) => {
           const balance = await web3.eth.getBalance(address);
@@ -399,10 +414,15 @@
       }
 
       async function onConnect() {
-        try {
-          provider = await web3Modal.connect();
-        } catch(e) {
+        if($("#connectBtn").text() == "斷開連線") {
+          onDisconnect();
           return;
+        } else {
+          try {
+            provider = await web3Modal.connect();
+          } catch(e) {
+            return;
+          }
         }
 
         $("#connectBtn").text("斷開連線");
@@ -425,14 +445,15 @@
       }
 
       async function onDisconnect() {
-        if(provider.close) {
-          await provider.close();
+        if(provider.disconnect) {
+          await provider.disconnect();
           await web3Modal.clearCachedProvider();
           provider = null;
         }
         selectedAccount = null;
         $("#connectBtn").text("連線錢包");
         $("#icon-connect-btn").attr("data-feather", "link-2");
+        $("#icoX").html("<img src=\"/assets/img/wallet-connect.png\" class=\"rounded-circle\" alt=\"\">");
         feather.replace();
       }
 
