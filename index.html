@@ -320,17 +320,7 @@
                   <button id="d8Region" class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     服務器位置
                   </button>
-                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="javascript:$('#d8Region').html('美國-雅特蘭大')">美國-雅特蘭大</a>
-                    <a class="dropdown-item" href="javascript:$('#d8Region').html('美國-達拉斯')">美國-達拉斯</a>
-                    <a class="dropdown-item" href="javascript:$('#d8Region').html('美國-佛里蒙特')">美國-佛里蒙特</a>
-                    <a class="dropdown-item" href="javascript:$('#d8Region').html('加拿大-多倫多')">加拿大-多倫多</a>
-                    <a class="dropdown-item" href="javascript:$('#d8Region').html('英國-倫敦')">英國-倫敦</a>
-                    <a class="dropdown-item" href="javascript:$('#d8Region').html('德國-法蘭克福')">德國-法蘭克福</a>
-                    <a class="dropdown-item" href="javascript:$('#d8Region').html('新加坡')">新加坡</a>
-                    <a class="dropdown-item" href="javascript:$('#d8Region').html('日本-東京')">日本-東京</a>
-                    <a class="dropdown-item" href="javascript:$('#d8Region').html('印度-孟買')">印度-孟買</a>
-                    <a class="dropdown-item" href="javascript:$('#d8Region').html('澳洲-雪梨')">澳洲-雪梨</a>
+                  <div id="regions" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   </div>
                 </div>
               </div>
@@ -338,7 +328,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary tx-13" data-dismiss="modal">關閉</button>
-            <button type="button" class="btn btn-primary tx-13">購買</button>
+            <button type="button" class="btn btn-primary tx-13" onclick="confirmCreate()">購買</button>
           </div>
         </div>
       </div>
@@ -391,7 +381,7 @@
       let createType = 0;
       let createRegion = '';
 
-      function init() {
+      async function init() {
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         const serverName = Base64.decode(decodeURI(urlParams.get('serverName')));
@@ -418,10 +408,23 @@
           disableInjectedProvider: false, // optional. For MetaMask / Brave / Opera.
         });
 
+        let raw = await fetch("https://api.d8.run/regions");
+        regions = (await raw.json()).data;
+        for(let i=0;i<regions.length;i++) {
+          $("#regions").append('<a class="dropdown-item" href="javascript:onRegionSelected(\'' + regions[i].label + '\',\'' + regions[i].id + '\')"><img width=24 src="assets/img/'+regions[i].country+'.png"/>'+regions[i].label+'</a>');
+        }
+
         onConnect();
       }
 
+      function onRegionSelected(label, id) {
+        $('#d8Region').html(label);
+        createRegion=id
+      }
+
       async function create(type) {
+        createType = 0;
+        createRegion = '';
         $("#d8Type").html("請選擇伺服器類型");
         $("#d8Region").html("請選擇伺服器位置");
         $("#d8Text").html("");
@@ -429,7 +432,22 @@
       }
 
       async function confirmCreate() {
-        await d8("create", type);
+        if(createType == 0) {
+          alert("請選擇伺服器類型");
+          return;
+        } else if(createRegion == '') {
+          alert("請選擇伺服器位置");
+          return;
+        } else if($("#d8Text").val() == '') {
+          alert("請輸入伺服器名稱");
+          return;
+        }
+        await d8("create", {
+          type: createType,
+          address: selectedAccount,
+          region: createRegion,
+          text: $("#d8Text").val()
+        });
       }
 
       async function sign(message) {
@@ -493,7 +511,7 @@
           return;
         } else {
           try {
-            provider = await web3Modal.connect();
+            //provider = await web3Modal.connect();
           } catch(e) {
             return;
           }
@@ -545,7 +563,7 @@
         });
       }
 
-      async function d8(action, params = '') {
+      async function d8(action, params = {}) {
         let challengeRes = await fetch('https://api.d8.run/challenge', {
             method: 'POST',
             body: JSON.stringify({

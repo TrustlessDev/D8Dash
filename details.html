@@ -267,7 +267,7 @@
           <div class="d-none d-md-block">
             <button class="btn btn-sm pd-x-15 btn-white btn-uppercase" onclick="reboot()"><i data-feather="refresh-cw" class="wd-10 mg-r-5"></i> 重新啟動</button>
             <button id="onoff" class="btn btn-sm pd-x-15 btn-white btn-uppercase mg-l-5" onclick="shutDown()"><i data-feather="power" class="wd-10 mg-r-5"></i><d8 id="onoffLabel">關機</d8></button>
-            <button class="btn btn-sm pd-x-15 btn-danger btn-uppercase mg-l-5"><i data-feather="trash-2" class="wd-10 mg-r-5"></i> 一鍵刪除</button>
+            <button class="btn btn-sm pd-x-15 btn-danger btn-uppercase mg-l-5" onclick="remove()"><i data-feather="trash-2" class="wd-10 mg-r-5"></i> 一鍵刪除</button>
           </div>
         </div>
 
@@ -277,6 +277,7 @@
               <h6 class="tx-uppercase tx-11 tx-spacing-1 tx-color-02 tx-semibold mg-b-8">伺服器狀態</h6>
               <div class="d-flex d-lg-block d-xl-flex align-items-end">
                 <h3 class="tx-normal tx-danger mg-b-0 mg-r-5 lh-1" id="status">未知</h3>
+                <p id="statusAppend" class="tx-11 tx-color-03 mg-b-0"></p>
               </div>
             </div>
           </div><!-- col -->
@@ -809,6 +810,10 @@
         await d8("reboot", instanceId);
       }
 
+      async function remove() {
+        await d8("remove", instanceId);
+      }
+
       let updateTimer = 0;
 
       async function retriveServer() {
@@ -818,7 +823,11 @@
         instanceId = id;
         if(id) {
           let server = await d8("instance", id);
+          if(server.errors) {
+            location.href = "/";
+          }
           $("#serverName").text(server.label);
+          $("#statusAppend").text("");
           let status = server.status;
           let statusText = "未知";
           let statusColor = "tx-danger";
@@ -856,6 +865,23 @@
             statusText = "已停止";
             statusColor = "tx-danger";
           }
+          let events = await d8("events", id);
+          let rEvents = events.find(e => ((e.entity && e.entity.id == id) || (e.secondary_entity && e.secondary_entity.id == id)) && e.percent_complete != null && e.percent_complete < 100);
+          if(rEvents) {
+            let action = rEvents.action;
+            if(action == "linode_update") {
+              statusText = "設定中 " + rEvents.percent_complete + "%";
+              statusColor = "tx-warning";
+            } else if(action == "linode_clone") {
+              statusText = "建立中 " + rEvents.percent_complete + "%";
+              statusColor = "tx-warning";
+              let time_remaining = rEvents.time_remaining;
+              $("#statusAppend").text("剩餘時間 " + time_remaining);
+            } else if(action == "linode_boot") {
+              statusText = "啟動中 " + rEvents.percent_complete + "%";
+              statusColor = "tx-warning";
+            }
+          }
           if(statusText == "關機") {
             $("#onoff").attr("onclick", "boot()");
             $("#onoffLabel").text("開機");
@@ -874,17 +900,19 @@
             }, 5000);
           }
           let stats = (await d8("stats", id));
-          console.log(stats);
-          let cpu = stats.cpu[stats.cpu.length-1][1];
-          let io = stats.io.io[stats.io.io.length-1][1];
-          let v4in = stats.netv4.in[stats.netv4.in.length-1][1];
-          v4in = (v4in/1000).toFixed(2);
-          let v4out = stats.netv4.out[stats.netv4.out.length-1][1];
-          v4out = (v4out/1000).toFixed(2);
-          $("#cpuStats").text(cpu + "%");
-          $("#ioStats").text(io + "%");
-          $("#v4In").text(v4in);
-          $("#v4Out").text(v4out);
+          if(stats) {
+            let cpu = stats.cpu[stats.cpu.length-1][1];
+            let io = stats.io.io[stats.io.io.length-1][1];
+            let v4in = stats.netv4.in[stats.netv4.in.length-1][1];
+            v4in = (v4in/1000).toFixed(2);
+            let v4out = stats.netv4.out[stats.netv4.out.length-1][1];
+            v4out = (v4out/1000).toFixed(2);
+            $("#cpuStats").text(cpu + "%");
+            $("#ioStats").text(io + "%");
+            $("#v4In").text(v4in);
+            $("#v4Out").text(v4out);
+          }
+          
         } else {
           $("#serverName").text("null");
         }
