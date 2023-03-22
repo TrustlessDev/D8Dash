@@ -42,6 +42,9 @@
     <!-- DashForge CSS -->
     <link rel="stylesheet" href="assets/css/dashforge.css">
     <link rel="stylesheet" href="assets/css/dashforge.dashboard.css">
+    <link rel="stylesheet" href="assets/css/jquery.mCustomScrollbar.min.css">
+    <link rel="stylesheet" href="assets/css/chatbox.css">
+
   </head>
   <body class="page-profile">
     <header class="navbar navbar-header navbar-header-fixed">
@@ -346,6 +349,36 @@
       </div>
     </footer>
 
+    <section style="display: none;" class="avenue-messenger">
+      <div class="menu">
+        <div class="items">
+          <span>
+            <a href="#" title="Minimize">&mdash;</a><br>
+            <a href="#" title="End Chat">&#10005;</a>
+          </span>
+        </div>
+        <div class="button">...</div>
+      </div>
+      <div class="agent-face">
+        <div class="half">
+          <img class="agent circle" src="/assets/img/havatar.jpeg" alt="Jesse Tino">
+        </div>
+      </div>
+      <div class="chat">
+        <div class="chat-title">
+          <h1>D8 - Nakamoto</h1>
+          <h2>客服人員</h2>
+        </div>
+        <div class="messages">
+          <div class="messages-content"></div>
+        </div>
+        <div class="message-box">
+          <textarea type="text" class="message-input" placeholder="請輸入訊息..."></textarea>
+          <button type="submit" class="message-submit">Send</button>
+        </div>
+      </div>
+    </div>
+
     <script src="lib/jquery/jquery.min.js"></script>
     <script src="lib/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="lib/feather-icons/feather.min.js"></script>
@@ -354,7 +387,6 @@
     <script src="lib/jquery.flot/jquery.flot.stack.js"></script>
     <script src="lib/jquery.flot/jquery.flot.resize.js"></script>
     <script src="lib/chart.js/Chart.bundle.min.js"></script>
-    
     <script src="assets/js/dashforge.js"></script>
     <script src="assets/js/dashforge.sampledata.js"></script>
 
@@ -363,12 +395,14 @@
     <script src="assets/js/dashforge.settings.js"></script>
     <script src="assets/js/base64.js"></script>
     <script src="assets/js/iconx.js"></script>
+    <script src="assets/js/jquery.mCustomScrollbar.concat.min.js"></script>
 
     <!-- append Web3 -->
     <script type="text/javascript" src="assets/js/web3.min.js"></script>
     <script type="text/javascript" src="assets/js/web3modal.js"></script>
     <script type="text/javascript" src="assets/js/evm-chains.js"></script>
     <script type="text/javascript" src="assets/js/web3-provider.js"></script>
+    <script type="text/javascript" src="assets/js/chatbox.js"></script>
     <script>
       const Web3Modal = window.Web3Modal.default;
       const WalletConnectProvider = window.WalletConnectProvider.default;
