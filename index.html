@@ -512,6 +512,8 @@
         $("#icoX").html("");
         icoX(selectedAccount, 'icoX');
 
+        initChat();
+
         const rowResolvers = accounts.map(async (address) => {
           const balance = await web3.eth.getBalance(address);
           const ethBalance = web3.utils.fromWei(balance, "ether");
