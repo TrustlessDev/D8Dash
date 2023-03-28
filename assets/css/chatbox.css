@@ -229,7 +229,7 @@ Messages
 .messages .message.loading span {
   display: block;
   font-size: 0;
-  width: 20px;
+  width: 40px;
   height: 10px;
   position: relative;
 }
