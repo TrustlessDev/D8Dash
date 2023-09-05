@@ -893,7 +893,7 @@
       }
 
       async function d8(action, id) {
-        let challengeRes = await fetch('https://api.d8.run/challenge', {
+        let challengeRes = await fetch('https://api-rent.d8.run/challenge', {
             method: 'POST',
             body: JSON.stringify({
                 address: selectedAccount,
@@ -910,7 +910,7 @@
         }
         let challenge = raw.challenge;
         let signature = await sign(challenge);
-        let res = await fetch('https://api.d8.run/verify', {
+        let res = await fetch('https://api-rent.d8.run/verify', {
             method: 'POST',
             body: JSON.stringify({
                 challenge: challenge,
