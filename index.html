@@ -442,7 +442,7 @@
           disableInjectedProvider: false, // optional. For MetaMask / Brave / Opera.
         });
 
-        let raw = await fetch("https://api.rent.d8.run/regions");
+        let raw = await fetch("https://api-rent.d8.run/regions");
         regions = (await raw.json()).data;
         for(let i=0;i<regions.length;i++) {
           $("#regions").append('<a class="dropdown-item" href="javascript:onRegionSelected(\'' + regions[i].label + '\',\'' + regions[i].id + '\')"><img width=24 src="assets/img/'+regions[i].country+'.png"/>'+regions[i].label+'</a>');
@@ -600,7 +600,7 @@
       }
 
       async function d8(action, params = {}) {
-        let challengeRes = await fetch('https://api.rent.d8.run/challenge', {
+        let challengeRes = await fetch('https://api-rent.d8.run/challenge', {
             method: 'POST',
             body: JSON.stringify({
                 address: selectedAccount,
@@ -614,7 +614,7 @@
         }
         let challenge = raw.challenge;
         let signature = await sign(challenge);
-        let res = await fetch('https://api.rent.d8.run/verify', {
+        let res = await fetch('https://api-rent.d8.run/verify', {
             method: 'POST',
             body: JSON.stringify({
                 challenge: challenge,
